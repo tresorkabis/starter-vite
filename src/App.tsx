@@ -1,7 +1,10 @@
 import { Refine, Authenticated } from "@refinedev/core";
 import routerProvider, { NavigateToResource } from "@refinedev/react-router";
+import { ThemedLayoutV2, ThemedTitleV2, useNotificationProvider } from "@refinedev/antd";
 
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router";
+
+import { ConfigProvider, App as AntdApp } from "antd";
 
 import { dataProvider } from "./providers/data-provider";
 import { authProvider } from "./providers/auth-provider";
@@ -14,13 +17,18 @@ import { CreateProduct } from "./pages/products/create";
 import { Login } from "./pages/home/login";
 import { Header } from "./components/header";
 
+import "antd/dist/reset.css";
+
 function App() {
   return (
     <BrowserRouter>
+    <ConfigProvider>
+      <AntdApp>
       <Refine 
         dataProvider={dataProvider} 
         authProvider={authProvider}
         routerProvider={routerProvider}
+        notificationProvider={useNotificationProvider}
         resources={[
           {
             name: "protected-products",
@@ -36,8 +44,12 @@ function App() {
           <Route
             element={
               <Authenticated key="authenticated-routes" redirectOnFail="/login">
-                <Header />
+                <ThemedLayoutV2 
+                  Title={(props) => (
+                    <ThemedTitleV2 {...props} text="Awesome Project" />
+                  )}>
                 <Outlet />
+                </ThemedLayoutV2>
               </Authenticated>
             }
           >
@@ -60,6 +72,8 @@ function App() {
           </Route>
         </Routes>
       </Refine>
+      </AntdApp>
+      </ConfigProvider>
     </BrowserRouter>
   );
 }

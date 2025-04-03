@@ -1,77 +1,39 @@
-import { useForm, useSelect } from "@refinedev/core";
+import { useForm, useSelect, Edit } from "@refinedev/antd";
+import { Form, Input, Select, InputNumber } from "antd";
 
 export const EditProduct = () => {
 
-    const { onFinish, mutation, query } = useForm({
+    const { formProps, saveButtonProps, query } = useForm({
         redirect: "show",
     });
 
-    const record  = query.data?.data;
 
-    const { options } = useSelect(
+    const { selectProps } = useSelect(
         {
             resource: "categories",
+            defaultValue: query?.data?.data?.category?.id,
         }
     );
 
-    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
-
-        onFinish(
-            {
-                ...data,
-                price: Number(data.price).toFixed(2),
-                category : { id: Number(data.category) },
-            }
-        );
-    };
-
     return (
-       <form onSubmit={onSubmit}>
-        <label htmlFor="name">Name</label>
-        <input type="text" name="name" id="name" defaultValue={record?.name} /><br />
-
-        <label htmlFor="description">Description</label>
-        <textarea 
-            name="description" 
-            id="description" 
-            defaultValue={record?.description}    
-        /> <br />
-
-        <label htmlFor="price">Price</label>
-        <input 
-            type="text" 
-            name="price" 
-            id="price" 
-            defaultValue={record?.price}
-            pattern="\d*\.?\d*" /> <br />
-
-        <label htmlFor="material">Material</label>
-        <input 
-            type="text" 
-            name="material" 
-            id="material" 
-            defaultValue={record?.material}
-             /> <br />
-
-        <label htmlFor="category">Category</label>
-        <select id="category" name="category">
-            {options?.map((option) => (
-            <option
-                key={option.value}
-                value={option.value}
-                selected={record?.category.id == option.value}
-            >
-                {option.label}
-            </option>
-            ))}
-        </select> <br />
-
-        {mutation.isSuccess && <span>successfully submitted!</span>}
-        <button type="submit">Submit</button>
-
-       </form>
+        <Edit saveButtonProps={saveButtonProps}>
+            <Form {...formProps} layout="vertical">
+                <Form.Item label="Name" name="name">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Description" name="description">
+                    <Input.TextArea />
+                </Form.Item>
+                <Form.Item label="Material" name="material">
+                    <Input.TextArea />
+                </Form.Item>
+                    <Form.Item label="Category" name={["category", "id"]}>
+                    <Select {...selectProps} />
+                </Form.Item>
+                <Form.Item label="Price" name="price">
+                    <InputNumber step="0.01" stringMode />
+                </Form.Item>
+            </Form>
+       </Edit>
     );
 };
