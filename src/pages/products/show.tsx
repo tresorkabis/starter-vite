@@ -1,10 +1,10 @@
-import { useOne } from "@refinedev/core";
+import { useOne, useShow } from "@refinedev/core";
 
 export const ShowProduct = () => {
-    const { data, isLoading } = useOne({
-        resource: "products",
-        id: "1",
-    });
+
+    const {
+        query: { data, isLoading },
+      } = useShow();
 
     if (isLoading) return <div>Loading...</div>;
 

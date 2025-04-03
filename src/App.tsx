@@ -1,4 +1,7 @@
 import { Refine, Authenticated } from "@refinedev/core";
+import routerProvider, { NavigateToResource } from "@refinedev/react-router";
+
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router";
 
 import { dataProvider } from "./providers/data-provider";
 import { authProvider } from "./providers/auth-provider";
@@ -13,18 +16,51 @@ import { Header } from "./components/header";
 
 function App() {
   return (
-    <Refine dataProvider={dataProvider} authProvider={authProvider}>
-      <Authenticated 
-        key="protected" 
-        fallback={<Login />}
+    <BrowserRouter>
+      <Refine 
+        dataProvider={dataProvider} 
+        authProvider={authProvider}
+        routerProvider={routerProvider}
+        resources={[
+          {
+            name: "protected-products",
+            list: "/products",
+            show: "/products/:id",
+            edit: "/products/:id/edit",
+            create: "/products/create",
+            meta: { label: "Products" },
+          }
+        ]}
       >
-        <Header />
-        {/* <ShowProduct /> */}
-        {/* <EditProduct />  */}
-        <ListProducts />
-        {/* <CreateProduct /> */}
-      </Authenticated>
-    </Refine>
+        <Routes>
+          <Route
+            element={
+              <Authenticated key="authenticated-routes" redirectOnFail="/login">
+                <Header />
+                <Outlet />
+              </Authenticated>
+            }
+          >
+            <Route index element={<NavigateToResource resource="protected-products" />} />
+            <Route path="/products">
+              <Route index element={<ListProducts />} />
+              <Route path=":id" element={<ShowProduct />} />
+              <Route path=":id/edit" element={<EditProduct />} />
+              <Route path="create" element={<CreateProduct />} />
+            </Route>
+          </Route>
+          <Route
+            element={
+              <Authenticated key="auth-pages" fallback={<Outlet />}>
+                <NavigateToResource resource="protected-products" />
+              </Authenticated>
+            }
+          >
+            <Route path="/login" element={<Login />} />
+          </Route>
+        </Routes>
+      </Refine>
+    </BrowserRouter>
   );
 }
 

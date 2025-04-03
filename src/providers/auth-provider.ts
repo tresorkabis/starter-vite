@@ -34,7 +34,16 @@ export const authProvider: AuthProvider = {
         return { authenticated: Boolean(token) };
      },
     
-    onError: async (error) => { throw new Error("Not implemented"); },
+    onError: async (error) => { 
+      if (error?.status === 401) {
+        return {
+          logout: true,
+          error: { name: "UnauthorizedError", message: "Unauthorized" },
+        };
+      }
+
+      return {};
+    },
     // optional methods
     register: async (params) => { throw new Error("Not implemented"); },
     

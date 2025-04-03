@@ -2,26 +2,37 @@ import type { BaseRecord, CreateParams, CreateResponse, DataProvider, DeleteOneP
 
 const API_URL = "https://api.fake-rest.refine.dev";
 
+const fetcher = async (url: string, options?: RequestInit) => {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options?.headers,
+      Authorization: localStorage.getItem("my_access_token") || "",
+    },
+  });
+};
+
 
 export const dataProvider: DataProvider = {
-    getMany: async ({ resource, ids, meta }) => {
-      const params = new URLSearchParams();
+    
+    // getMany: async ({ resource, ids, meta }) => {
+    //   const params = new URLSearchParams();
 
-      if (ids) {
-        ids.forEach((id) => params.append("id", id));
-      }
-      
-      const response = await fetch(`${API_URL}/${resource}/${params.toString}`);
+    //   if (ids) {
+    //     ids.forEach((id) => params.append("id", id));
+    //   }
+    //   console.log(params.toString());
+    //   const response = await fetch(`${API_URL}/${resource}/${params.toString()}`);
 
-      if (response.status < 200 || response.status > 299) throw response;
+    //   if (response.status < 200 || response.status > 299) throw response;
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      return { data };
-    },
+    //   return { data };
+    // },
 
     getOne: async ({ resource, id, meta }) => {
-        const response = await fetch(`${API_URL}/${resource}/${id}`);
+        const response = await fetcher(`${API_URL}/${resource}/${id}`);
 
         if (response.status < 200 || response.status > 299) throw response;
 
@@ -54,7 +65,7 @@ export const dataProvider: DataProvider = {
             });
           }
 
-        const response = await fetch(`${API_URL}/${resource}?${params.toString()}`);
+        const response = await fetcher(`${API_URL}/${resource}?${params.toString()}`);
 
         if (response.status < 200 || response.status > 299) throw response;
 
@@ -85,7 +96,7 @@ export const dataProvider: DataProvider = {
       },
 
     update: async ({ resource, id, variables }) => {
-        const response = await fetch(`${API_URL}/${resource}/${id}`, {
+        const response = await fetcher(`${API_URL}/${resource}/${id}`, {
             method: "PATCH",
             body: JSON.stringify(variables),
             headers: {
